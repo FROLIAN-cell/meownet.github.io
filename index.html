@@ -10,25 +10,12 @@ html, body {
     font-family: 'Inter', system-ui, sans-serif;
     color: white; background: black;
 }
-body::before, body::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="3" height="3"><circle cx="1.5" cy="1.5" r="1.5" fill="white"/></svg>') repeat;
-    background-size: 2px 2px;
-    animation: starsMove 120s linear infinite;
-    opacity: 0.5; z-index: 0;
-}
-body::after { animation-duration: 200s; opacity: 0.3; }
-@keyframes starsMove { from { transform: translateY(0); } to { transform: translateY(-2000px); } }
-
 .container {
-    position: relative; z-index: 1;
+    position: relative;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     height: 100%; text-align: center;
 }
-.cat { font-size: 64px; margin-bottom: 10px; animation: blink 3s infinite; }
-@keyframes blink { 0%,90%,100%{transform:scale(1);}95%{transform:scale(0.9);} }
+.cat { font-size: 64px; margin-bottom: 10px; }
 h1 { font-size: 42px; margin:0; font-weight:700; letter-spacing:-0.03em; }
 p { color:#ccc; margin:10px 0 30px; }
 form {
@@ -54,6 +41,11 @@ button:hover {
 footer {
     position:absolute; bottom:20px; color:#777;
     font-size:14px; text-align:center; width:100%;
+}
+iframe {
+    width: 100%;
+    height: 100vh;
+    border: none;
 }
 </style>
 </head>
@@ -82,9 +74,6 @@ async function loadSite(siteName) {
         const htmlCode = await response.text();
         // Создаем iframe и вставляем код
         const iframe = document.createElement('iframe');
-        iframe.style.width = "100%";
-        iframe.style.height = "100vh";
-        iframe.style.border = "none";
         document.body.innerHTML = ''; // очищаем страницу
         document.body.appendChild(iframe);
         iframe.contentWindow.document.open();
@@ -103,9 +92,7 @@ document.getElementById('siteForm').addEventListener('submit', function(e) {
         siteName = encodeURIComponent(siteName);
         // Добавляем .meow в URL
         const fullSiteName = siteName + ".meow";
-        // Переписываем историю браузера
         history.pushState({}, "", `/${fullSiteName}`);
-        // Загружаем сайт
         loadSite(siteName);
     }
 });
@@ -119,3 +106,4 @@ if (path) {
 </script>
 </body>
 </html>
+

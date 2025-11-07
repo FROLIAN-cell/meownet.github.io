@@ -19,14 +19,9 @@ body::before, body::after {
     animation: starsMove 120s linear infinite;
     opacity: 0.5; z-index: 0;
 }
-body::after {
-    animation-duration: 200s;
-    opacity: 0.3;
-}
-@keyframes starsMove {
-    from { transform: translateY(0); }
-    to { transform: translateY(-2000px); }
-}
+body::after { animation-duration: 200s; opacity: 0.3; }
+@keyframes starsMove { from { transform: translateY(0); } to { transform: translateY(-2000px); } }
+
 .container {
     position: relative; z-index: 1;
     display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -63,7 +58,7 @@ footer {
 </style>
 </head>
 <body>
-<div class="container">
+<div class="container" id="mainContainer">
     <div class="cat">😺</div>
     <h1>MeowNet</h1>
     <p>Введите имя сайта, чтобы перейти через MeowNet</p>
@@ -75,16 +70,52 @@ footer {
 </div>
 
 <script>
+// Настройки Firebase
+const firebaseBase = "https://meownet-2e95c-default-rtdb.firebaseio.com/meownet";
+
+// Функция для загрузки сайта
+async function loadSite(siteName) {
+    try {
+        const url = `${firebaseBase}/${siteName}/code.json`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Сайт не найден");
+        const htmlCode = await response.text();
+        // Создаем iframe и вставляем код
+        const iframe = document.createElement('iframe');
+        iframe.style.width = "100%";
+        iframe.style.height = "100vh";
+        iframe.style.border = "none";
+        document.body.innerHTML = ''; // очищаем страницу
+        document.body.appendChild(iframe);
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(htmlCode);
+        iframe.contentWindow.document.close();
+    } catch (err) {
+        document.body.innerHTML = `<h1 style="color:white; text-align:center; margin-top:20vh;">😿 404<br>Сайт ${siteName}.meow не найден</h1>`;
+    }
+}
+
+// Обработка формы
 document.getElementById('siteForm').addEventListener('submit', function(e) {
     e.preventDefault();
     let siteName = document.getElementById('siteInput').value.trim();
     if (siteName) {
-        // Убираем лишние символы и делаем безопасным для URL
         siteName = encodeURIComponent(siteName);
-        // Формируем путь: /имя-сайта/сайт.meow
-        window.location.href = `/${siteName}/сайт.meow`;
+        // Добавляем .meow в URL
+        const fullSiteName = siteName + ".meow";
+        // Переписываем историю браузера
+        history.pushState({}, "", `/${fullSiteName}`);
+        // Загружаем сайт
+        loadSite(siteName);
     }
 });
+
+// Автозагрузка сайта при прямом переходе по URL
+const path = location.pathname.slice(1);
+if (path) {
+    const siteName = path.replace(/\.meow$/, '');
+    loadSite(siteName);
+}
 </script>
 </body>
 </html>
